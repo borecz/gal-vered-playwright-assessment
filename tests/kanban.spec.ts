@@ -50,20 +50,45 @@ test.describe("Kanban Board", () => {
   });
 
   test("Delete a Kanban card", async ({ page, kanbanBoard }) => {
-    await test.step("2 - Select a random card from the board", async () => {
-      // implement
+    const targetColumnIndex = 0;
+    let initialCount: number;
+
+    await test.step("2 - Get current number of cards in the column", async () => {
+      await expect(async () => {
+        await page.reload();
+        initialCount = await kanbanBoard.getColumnTaskCount(targetColumnIndex);
+        console.log("Initial count:", initialCount);
+        expect(initialCount).toBeGreaterThan(0);
+      }).toPass({ timeout: 5000 });
     });
 
-    await test.step("3 - Delete a Kanban card", async () => {
-      // implement
+    const cardTitle =
+      await test.step("3 - Select a random card from the board", async () => {
+        const title = await kanbanBoard.getRandomCardTitle(targetColumnIndex);
+        console.log("Selected card title:", title);
+        await expect(
+          page.locator(`section article h3:has-text("${title}")`),
+          "Card not found"
+        ).toBeVisible();
+        return title;
+      });
+
+    await test.step("4 - Delete a Kanban card", async () => {
+      await kanbanBoard.deleteCard();
     });
 
-    await test.step("3 - Verify that the card is no longer present", async () => {
-      // implement
+    await test.step("5 - Verify that the card is no longer present", async () => {
+      await expect(async () => {
+        const isVisible = await kanbanBoard.isCardVisible(cardTitle);
+        expect(isVisible).toBe(false);
+      }).toPass({ timeout: 5000 });
     });
 
-    await test.step("4 - Verify that the number of cards in the relevant column is updated", async () => {
-      // implement
+    await test.step("6 - Verify that the number of cards in the relevant column is updated", async () => {
+      const updatedCount = await kanbanBoard.getColumnTaskCount(
+        targetColumnIndex
+      );
+      expect(updatedCount).toBe(initialCount - 1);
     });
   });
 
