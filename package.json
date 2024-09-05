@@ -2,7 +2,10 @@
   "name": "gal-vered-playwright-test",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "npx playwright test",
+    "test:report:open": "npx playwright show-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
